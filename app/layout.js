@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Stadium Slot Booking",
-  description: "Book stadium slots with dynamic pricing - day and night rates available",
+  title: "Venue Booking System",
+  description: "Book venue slots with ease - professional venue management and booking platform",
 };
 
 export default function RootLayout({ children }) {

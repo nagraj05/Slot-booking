@@ -100,7 +100,7 @@ export default function StadiumDetailPage() {
       <AdminLayout user={user}>
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold mb-4 text-gray-900">Stadium not found</h1>
-          <p className="text-gray-600 mb-6">The stadium you're looking for doesn't exist or you don't have access to it.</p>
+          <p className="text-gray-600 mb-6">The stadium you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.</p>
           <Link href="/admin">
             <Button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
