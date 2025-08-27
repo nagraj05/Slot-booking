@@ -47,8 +47,8 @@ export function SignupForm({ userType = 'customer' }) {
         </CardTitle>
         <CardDescription>
           {userType === 'admin' 
-            ? 'Register your stadium and manage bookings' 
-            : 'Sign up to start booking stadium slots'
+            ? 'Register your venue and manage bookings' 
+            : 'Sign up to start booking venue slots'
           }
         </CardDescription>
       </CardHeader>
@@ -56,7 +56,7 @@ export function SignupForm({ userType = 'customer' }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">
-              {userType === 'admin' ? 'Business/Stadium Name' : 'Full Name'}
+              {userType === 'admin' ? 'Business/Venue Name' : 'Full Name'}
             </Label>
             <Input
               id="fullName"

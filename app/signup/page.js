@@ -14,7 +14,7 @@ export default function SignupPage() {
             </Link>
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Own a stadium?{' '}
+            Own a venue?{' '}
             <Link href="/business-signup" className="text-blue-600 hover:underline">
               Business signup
             </Link>
