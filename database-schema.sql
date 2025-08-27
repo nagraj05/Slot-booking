@@ -174,7 +174,7 @@ create trigger on_auth_user_created
 create or replace function update_slot_availability()
 returns trigger as $$
 begin
-  if NEW.status = 'confirmed' and NEW.payment_status = 'paid' then
+  if NEW.status = 'confirmed' then
     update public.slots 
     set is_available = false 
     where id = NEW.slot_id;
