@@ -57,7 +57,7 @@ export default function AllSlotsPage() {
           .select(`
             *,
             stadiums (id, name, location),
-            bookings (id, status, payment_status, profiles (full_name))
+            bookings!left (id, status, payment_status, profiles (full_name))
           `)
           .order('date', { ascending: true }),
         supabase
@@ -89,8 +89,11 @@ export default function AllSlotsPage() {
     // Status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(slot => {
-        if (statusFilter === 'available') return slot.is_available
-        if (statusFilter === 'booked') return !slot.is_available
+        const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+          slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+        
+        if (statusFilter === 'available') return !hasActiveBooking
+        if (statusFilter === 'booked') return hasActiveBooking
         return true
       })
     }
@@ -191,7 +194,11 @@ export default function AllSlotsPage() {
                 Slots ({filteredSlots.length} of {slots.length})
               </CardTitle>
               <Badge variant="secondary" className="bg-green-100 text-green-700">
-                {filteredSlots.filter(slot => slot.is_available).length} Available
+                {filteredSlots.filter(slot => {
+                  const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+                    slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+                  return !hasActiveBooking
+                }).length} Available
               </Badge>
             </div>
           </CardHeader>
@@ -241,10 +248,16 @@ export default function AllSlotsPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <Badge variant={slot.is_available ? 'outline' : 'destructive'} 
-                               className={slot.is_available ? 'border-green-200 text-green-700 bg-green-50' : ''}>
-                          {slot.is_available ? 'Available' : 'Booked'}
-                        </Badge>
+                        {(() => {
+                          const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+                            slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+                          return (
+                            <Badge variant={hasActiveBooking ? 'destructive' : 'outline'} 
+                                   className={!hasActiveBooking ? 'border-green-200 text-green-700 bg-green-50' : ''}>
+                              {hasActiveBooking ? 'Booked' : 'Available'}
+                            </Badge>
+                          )
+                        })()}
                         <div className="mt-2">
                           <Button 
                             variant="outline" 

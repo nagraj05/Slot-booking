@@ -61,7 +61,8 @@ export default function FindVenuesPage() {
           .from('slots')
           .select(`
             *,
-            stadiums (id, name, location, facilities)
+            stadiums (id, name, location, facilities),
+            bookings!left (id, status, payment_status)
           `)
           .order('date', { ascending: true }),
         supabase
@@ -109,9 +110,17 @@ export default function FindVenuesPage() {
     // Availability filter
     if (availabilityFilter !== 'all') {
       if (availabilityFilter === 'available') {
-        filtered = filtered.filter(slot => slot.is_available)
+        filtered = filtered.filter(slot => {
+          const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+            slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+          return !hasActiveBooking
+        })
       } else if (availabilityFilter === 'booked') {
-        filtered = filtered.filter(slot => !slot.is_available)
+        filtered = filtered.filter(slot => {
+          const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+            slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+          return hasActiveBooking
+        })
       }
     }
 
@@ -134,7 +143,10 @@ export default function FindVenuesPage() {
   }
 
   const handleBookSlot = (slot) => {
-    if (!slot.is_available) {
+    const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+      slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+    
+    if (hasActiveBooking) {
       toast.error('This slot is no longer available')
       return
     }
@@ -280,7 +292,11 @@ export default function FindVenuesPage() {
                 Available Slots ({filteredSlots.length} of {slots.length})
               </CardTitle>
               <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                {filteredSlots.filter(slot => slot.is_available).length} Available
+                {filteredSlots.filter(slot => {
+                  const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+                    slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+                  return !hasActiveBooking
+                }).length} Available
               </Badge>
             </div>
           </CardHeader>
@@ -295,9 +311,14 @@ export default function FindVenuesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {filteredSlots.map((slot) => (
+                {filteredSlots.map((slot) => {
+                  const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+                    slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+                  const isAvailable = !hasActiveBooking
+                  
+                  return (
                   <Card key={slot.id} className={`group transition-all duration-200 hover:shadow-lg border-0 ${
-                    slot.is_available 
+                    isAvailable 
                       ? 'bg-white hover:bg-gradient-to-r hover:from-emerald-50 hover:to-blue-50 cursor-pointer' 
                       : 'bg-gray-50 opacity-75'
                   }`}>
@@ -309,13 +330,13 @@ export default function FindVenuesPage() {
                               {slot.stadiums?.name}
                             </h4>
                             <Badge 
-                              variant={slot.is_available ? 'outline' : 'secondary'}
-                              className={slot.is_available 
+                              variant={isAvailable ? 'outline' : 'secondary'}
+                              className={isAvailable 
                                 ? 'border-emerald-200 text-emerald-700 bg-emerald-50' 
                                 : 'bg-gray-200 text-gray-600'
                               }
                             >
-                              {slot.is_available ? 'Available' : 'Booked'}
+                              {isAvailable ? 'Available' : 'Booked'}
                             </Badge>
                           </div>
                           
@@ -361,7 +382,7 @@ export default function FindVenuesPage() {
                             <span className="text-xl">₹{slot.day_price}</span>
                           </div>
                           
-                          {slot.is_available ? (
+                          {isAvailable ? (
                             <Button 
                               onClick={() => handleBookSlot(slot)}
                               className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white hover:from-emerald-700 hover:to-blue-700 w-full"
@@ -378,7 +399,8 @@ export default function FindVenuesPage() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                  )
+                })}
               </div>
             )}
           </CardContent>

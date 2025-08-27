@@ -55,7 +55,10 @@ export default function StadiumDetailPage() {
           .single(),
         supabase
           .from('slots')
-          .select('*')
+          .select(`
+            *,
+            bookings!left (id, status, payment_status, profiles (full_name))
+          `)
           .eq('stadium_id', params.id)
           .order('date', { ascending: true }),
         supabase
@@ -202,10 +205,16 @@ export default function StadiumDetailPage() {
                         </span>
                       </div>
                     </div>
-                    <Badge variant={slot.is_available ? 'outline' : 'destructive'} 
-                           className={slot.is_available ? 'border-green-200 text-green-700 bg-green-50' : ''}>
-                      {slot.is_available ? 'Available' : 'Booked'}
-                    </Badge>
+                    {(() => {
+                      const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+                        slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+                      return (
+                        <Badge variant={hasActiveBooking ? 'destructive' : 'outline'} 
+                               className={!hasActiveBooking ? 'border-green-200 text-green-700 bg-green-50' : ''}>
+                          {hasActiveBooking ? 'Booked' : 'Available'}
+                        </Badge>
+                      )
+                    })()}
                   </div>
                 ))}
               </div>
