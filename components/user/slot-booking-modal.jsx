@@ -41,7 +41,7 @@ export function SlotBookingModal({ stadium, open, onClose, onBookingSuccess }) {
         .from('slots')
         .select(`
           *,
-          bookings!left (id, status)
+          bookings!left (id, status, payment_status)
         `)
         .eq('stadium_id', stadium.id)
         .eq('date', selectedDate)
@@ -49,10 +49,11 @@ export function SlotBookingModal({ stadium, open, onClose, onBookingSuccess }) {
 
       if (error) throw error
       
-      // Filter out slots that are either marked unavailable OR have confirmed bookings
+      // Filter out slots that have confirmed bookings with paid status
       const availableSlots = data.filter(slot => {
-        const hasConfirmedBooking = slot.bookings?.some(booking => booking.status === 'confirmed')
-        return slot.is_available && !hasConfirmedBooking
+        const hasActiveBooking = slot.bookings && slot.bookings.length > 0 && 
+          slot.bookings.some(booking => booking.status === 'confirmed' && booking.payment_status === 'paid')
+        return !hasActiveBooking
       })
       
       // Transform data to match the expected format

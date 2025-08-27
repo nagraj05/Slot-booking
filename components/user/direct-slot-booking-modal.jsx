@@ -161,7 +161,7 @@ export function DirectSlotBookingModal({ slot, open, onClose, onBookingSuccess }
           </Button>
           <Button
             onClick={handleBookSlot}
-            disabled={!slot.is_available || bookingLoading}
+            disabled={bookingLoading}
             className="flex-1 bg-gradient-to-r from-emerald-600 to-blue-600 text-white hover:from-emerald-700 hover:to-blue-700"
           >
             {bookingLoading ? 'Booking...' : 'Book & Pay'}
